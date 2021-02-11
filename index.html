@@ -53,7 +53,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class=" ">
-                                        <tr v-for="item in lesson" v-if="Math.abs(item.space-item.quantity)>0 && cartCount(item)>0">
+                                        <tr v-for="item in lesson" v-if="cartCount(item)>0">
                                             <td class="">
                                                 <img v-bind:src="item.image" style=" border-radius: 20px; box-shadow:lightskyblue 2px 2px 2px 2px;" class="img-fluid" alt="Sheep">
                                             </td>
@@ -183,7 +183,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class=" ">
-                                        <tr v-for="item in lesson" v-if="Math.abs(item.space-item.quantity)>0 && cartCount(item)>0">
+                                        <tr v-for="item in lesson" v-if="cartCount(item)>0">
                                             <td class="">
                                                 <img v-bind:src="item.image" class="img-fluid" alt="Sheep">
                                             </td>
@@ -299,73 +299,80 @@
                             alert("Please fill your Name");
                         } else {
 
-                            alert("Thanks for purchasing, your order has been confirmed!");
-
                             // var sub = document.getElementById("subject").textContent;
                             // var pric = document.getElementById("price").textContent;
                             // var spac = document.getElementById("space").textContent;
-                            for (item in this.cart) {
-                                this.carts[item] = {
-                                    "Subject": this.cart[item].subject,
-                                    "Price": this.cart[item].price,
-                                    "Quantity": 1,
-                                    "LessonID": this.cart[item].prodid,
-                                    "Location": this.cart[item].location,
-                                    "Id": this.cart[item]._id,
-                                };
+                            alert("Thanks for purchasing, your order has been confirmed!");
 
-                            }
-                            console.log(this.carts);
-
-
-                            var orders = {
-                                Customer_Name: this.order.Name,
-                                item: this.carts,
-                                Phone: this.order.phone,
-                            }
-
-                            console.log(orders);
-                            console.log(this.cart);
-
-                            fetch('https://rith1k.herokuapp.com/collection/Orders', {
-                                method: 'POST',
-                                // set the HTTP method as 'POST'
-                                headers: {
-                                    'Content-Type': 'application/json',
-
-                                    // set the data type as JSON
-                                },
-                                body: JSON.stringify(orders), // need to stringify the JSON object
-                            }).then(response => response.json()).then(responseJSON => {
-                                console.log('Success:', responseJSON);
-                            });
-                            for (item in this.cart) {
-                                fetch('https://rith1k.herokuapp.com/collection/Lessons/' + this.cart[item]._id, {
-                                    method: 'PUT',
-                                    mode: "cors",
-                                    cache: "no-store",
-                                    credentials: "same-origin", // set the HTTP method as 'PUT'
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({
-                                        space: this.cart[item].space,
-                                        quantity: 0,
-                                    }),
-                                    // need to stringify the JSON object
-                                }).then(response => response.json()).then(responseJSON => {
-                                    console.log('Success:', responseJSON);
-                                });
-                            }
-                            this.total() = 0;
-                            this.order.Name = "";
-                            this.order.phone = "";
+                            this.insertOrder();
+                            this.updateLessons();
                             window.location.reload();
 
                         }
 
                     }
 
+                },
+
+                updateLessons() {
+                    for (item in this.cart) {
+                        fetch('https://rith1k.herokuapp.com/collection/Lessons/' + this.cart[item]._id, {
+                            method: 'PUT',
+                            mode: "cors",
+                            cache: "no-store",
+                            credentials: "same-origin", // set the HTTP method as 'PUT'
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                space: this.cart[item].space,
+                                quantity: 0,
+                            }),
+
+                            // need to stringify the JSON object
+                        }).then(response => response.json()).then(responseJSON => {
+                            console.log('Success:', responseJSON);
+                        });
+
+                    }
+                },
+
+                insertOrder() {
+                    for (item in this.cart) {
+                        this.carts[item] = {
+                            "Subject": this.cart[item].subject,
+                            "Price": this.cart[item].price,
+                            "Quantity": 1,
+                            "LessonID": this.cart[item].prodid,
+                            "Location": this.cart[item].location,
+                            "Id": this.cart[item]._id,
+                        };
+
+                    }
+                    console.log(this.carts);
+
+
+                    var orders = {
+                        Customer_Name: this.order.Name,
+                        item: this.carts,
+                        Phone: this.order.phone,
+                    }
+
+                    console.log(orders);
+                    console.log(this.cart);
+
+                    fetch('https://rith1k.herokuapp.com/collection/Orders', {
+                        method: 'POST',
+                        // set the HTTP method as 'POST'
+                        headers: {
+                            'Content-Type': 'application/json',
+
+                            // set the data type as JSON
+                        },
+                        body: JSON.stringify(orders), // need to stringify the JSON object
+                    }).then(response => response.json()).then(responseJSON => {
+                        console.log('Success:', responseJSON);
+                    });
                 },
                 canAddToCart: function(lesson) {
                     return lesson.space > this.cartCount(lesson);
