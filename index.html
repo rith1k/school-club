@@ -210,7 +210,7 @@
                                     <p class="u-pull-right"> Name: {{order.Name}}</p>
                                     <p class="u-pull-right">Phone: {{order.phone}}</p>
                                     <div class="u-pull-right">
-                                        <h5>Total: <span>{{ total | currency }}</span></h5>
+                                        <h5>Total: <span id="total">${{ total }}</span></h5>
                                     </div>
                                     <button v-if="!(order.Name === '' || order.phone === '')" v-on:click="submitForm" class=" btn button btn-block btn-outline-info">Place
                                         Order <i class="ml-2 fas fa-credit-card "></i></button>
@@ -306,14 +306,25 @@
 
                             this.insertOrder();
                             this.updateLessons();
-                            window.location.reload();
-
+                            setTimeout(function() {}, 2000);
+                            console.log("reloading");
                         }
 
                     }
 
                 },
+                updatepage() {
+                    var delayInMilliseconds = 3000; //1 second
 
+                    setTimeout(function() {
+                        //your code to be executed after 1 second
+                    }, delayInMilliseconds);
+                    this.cart.length = 0;
+                    this.order.Name = "";
+                    this.order.phone = '';
+                    document.getElementById("total").innerHTML = "";
+
+                },
                 updateLessons() {
                     for (item in this.cart) {
                         fetch('https://rith1k.herokuapp.com/collection/Lessons/' + this.cart[item]._id, {
@@ -335,6 +346,8 @@
                         });
 
                     }
+                    this.updatepage();
+
                 },
 
                 insertOrder() {
